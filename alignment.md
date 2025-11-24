@@ -43,7 +43,7 @@ done
 Sort bam and add read groups:
 ```
 samples=($(cat Re-sequencing_Reads_tar/Analysis_4229123/sample_ids.txt))
-for sample in ${samples[@]; do
+for sample in ${samples[@]}; do
     
     echo " - sorting ${sample}.bam"
     samtools sort \
@@ -76,6 +76,5 @@ for sample in ${samples[@]}; do
     # Indexing for GATK
     echo " - Indexing ${sample} -"
     samtools index data/bams/${sample}.sorted.rg.bam
-    
 done
 ```
