@@ -71,3 +71,74 @@ bedtools intersect -header \
     -b data/vcfs/min3perpop_snps.bed \
     > data/vcfs/pclarkii_allsamples.min5dp20gq.afanac.qual.bial_snps.min4perpop.vcf
 ```
+
+## BCFTOOLS
+```
+# filter to include high quality and biallelic variants
+bcftools +setGT -Ou data/vcfs/pclarkii_allsamples.vcf -- \
+    -t q -n . -i 'FORMAT/GQ < 15' |
+bcftools +fill-tags -Ou -- \
+    -t AF,AN,AC |
+bcftools view -Ou -e \
+    'INFO/MQRankSum < -12.5 | INFO/ReadPosRankSum < -8.0 | INFO/QD < 6.0 | INFO/FS > 60.0 | INFO/MQ < 40.0 | INFO/AC < 1 | INFO/ExcessHet > 10' |
+bcftools annotate -Ou \
+    -x ^INFO/AC,^INFO/AN,^INFO/AF |
+bcftools view -Ou \
+   -v snps -m2 -M2 \
+> data/vcfs/pclarkii.qc_ac_bial.bcf
+
+# calculate individual missingness
+vcftools --bcf data/vcfs/pclarkii.qc_ac_bial.bcf --missing-indv
+mv out.imiss data/
+
+# remove high missing individuals
+# remove high missing and low frequency snps
+bcftools view -Ou \
+    -S <(awk '$5 < 0.95' data/out.imiss | cut -f1) data/vcfs/pclarkii.qc_ac_bial.bcf |
+bcftools view -Ou \
+    -i 'F_MISSING < 0.2 & MAF > 0.02' \
+> data/vcfs/pclarkii.qc_ac_bial.lowmiss_maf.bcf
+
+# make bed
+plink --make-bed \
+ --bcf data/vcfs/pclarkii.qc_ac_bial.lowmiss_maf.bcf \
+ --double-id --allow-extra-chr --set-missing-var-ids @:# \
+ --out data/vcfs/pclarkii.qc_ac_bial.lowmiss_maf
+
+# Total genotyping rate is 0.853602.
+# 40335 variants and 328 people pass filters and QC.
+
+plink --recode A \
+ --bcf data/vcfs/pclarkii.qc_ac_bial.lowmiss_maf.bcf \
+ --double-id --allow-extra-chr --set-missing-var-ids @:# \
+ --out data/vcfs/pclarkii.qc_ac_bial.lowmiss_maf
+
+plink --bcf data/vcfs/pclarkii.qc_ac_bial.lowmiss_maf.bcf \
+    --double-id --allow-extra-chr --set-missing-var-ids @:# \
+    --pca 'header' \
+    --out pclarkii.qc_ac_bial.lowmiss_maf.plink.pca
+
+```
+
+## stacks: populations module
+
+`populations -V vcf -O dir [-M popmap] (filters) [--fstats] [-k [--sigma=150000] [--bootstrap [-N 100]]] (output formats)`
+
+```
+# input vcf:
+invcf=data/vcfs/pclarkii.qc_ac_bial.lowmiss_maf.vcf
+# popmap file:
+paste \
+  <(bcftools query -l data/vcfs/pclarkii.qc_ac_bial.lowmiss_maf.bcf) \
+  <(bcftools query -l data/vcfs/pclarkii.qc_ac_bial.lowmiss_maf.bcf | cut -c 1,2) \
+> data/vcfs/pclarkii.qc_ac_bial.lowmiss_maf.popmap
+popmap=data/vcfs/pclarkii.qc_ac_bial.lowmiss_maf.popmap
+# outputdirectory
+odir=data/stacks_populations
+
+populations \
+  -V $invcf \
+  -O $odir \
+  -M $popmap \
+  --fstats
+```
