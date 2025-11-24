@@ -4,3 +4,18 @@
 .Ruserdata
 
 Genetic_Procambarus_clarkii.Rproj
+data/vcfs
+data/fastStructure
+plots
+explore.R
+
+data/pca
+data/fastStructure
+data/fastreer
+data/dapc
+data/admixture
+shit/
+
+**/.DS_Store
+**/.ipynb_checkpoints/
+
