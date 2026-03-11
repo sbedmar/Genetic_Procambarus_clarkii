@@ -49,11 +49,14 @@ plot_pca <- function(eigenvecs, percents, x = 1, y = 2){
       aes(x = labels[, colnames(eigenvecs)[x+1]],
           y = labels[, colnames(eigenvecs)[y+1]],
           label = labels$pop),
-      size = 2, max.overlaps = 500,
-      box.padding = 0.1,
-      label.size = 0.1,       # border thickness
+      size = 2.5, max.overlaps = 500,
+      force = 1, segment.size = 0.1,
+      box.padding = 0.05,
+      label.padding = 0.05,
+      label.size = 0.05,       # border thickness
       fill = "white",         # background color
-      color = "black"         # text color
+      color = "black",       # text color
+      alpha = 0.85
     ) +
     xlab(paste0(colnames(eigenvecs)[x+1], " - ", round(percents[x, 1], 2), "%")) +
     ylab(paste0(colnames(eigenvecs)[y+1], " - ", round(percents[y, 1], 2), "%")) +

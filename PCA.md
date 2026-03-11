@@ -57,7 +57,7 @@ plink \
 ```
 plot in R:
 ```{r}
-source("src/pca/functions.R", print.eval=TRUE)
+source("src/R_functions/pca.R", print.eval=TRUE)
 
 name <- "pclarkii.qc_ac_bial.lowmiss_maf"
 
@@ -72,12 +72,15 @@ for (dataset in c("ALL", "NOLA", "NOLAEX")){
   # plot pca
   ggsave(paste0("plots/pca/", name, ".", dataset, ".pc1pc2.png"),
          plot_pca(eigenvecs, percents, x = 1, y = 2),
-         height = 4, width = 6)
+         height = 3, width = 4.5)
   ggsave(paste0("plots/pca/", name, ".", dataset, ".pc3pc4.png"),
          plot_pca(eigenvecs, percents, x = 3, y = 4),
-         height = 4, width = 6)
+         height = 3, width = 4.5)
   ggsave(paste0("plots/pca/", name, ".", dataset, ".pc5pc6.png"),
          plot_pca(eigenvecs, percents, x = 5, y = 6),
-         height = 4, width = 6)
+         height = 3, width = 4.5)
+  ggsave(paste0("plots/pca/", name, ".", dataset, ".pc7pc8.png"),
+         plot_pca(eigenvecs, percents, x = 7, y = 8),
+         height = 3, width = 4.5)
 }
 ```
