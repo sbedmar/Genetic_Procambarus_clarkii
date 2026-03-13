@@ -6,6 +6,61 @@ conda activate clarkii
 conda install -c bioconda eigensoft
 ```
 
+to install admixtools from source in my mac (helped by ChatGPT)
+
+```
+git clone https://github.com/DReichLab/AdmixTools.git
+cd Admixtools/src
+mv Makefile ..
+mv Makefile.mac Makefile
+
+nano compat_strchrnul.c
+# paste this in file
+#include <string.h>
+
+char *strchrnul(const char *s, int c) {
+    while (*s && *s != (char)c) {
+        s++;
+    }
+    return (char *)s;
+}
+######
+
+nano Makefile
+
+# remove top of file and replace with this:
+HOMEL=$(PWD)
+TOP=../bin
+BIN=$(HOMEL)/../bin
+
+BREW := $(shell brew --prefix)
+
+### *** needs argp. run brew install argp-standalone
+override LDLIBS += compat_strchrnul.o $(BREW)/lib/libargp.a -lgsl -lblas -llapack -lm -lnick
+# Some Linux distributions require separate lapacke library
+# override LDLIBS += -llapacke
+
+override LDFLAGS += -g -L./nicksrc -L$(BREW)/lib
+override CFLAGS += -c -g -Wimplicit -I./ -I./nicksrc -I$(BREW)/include
+
+# Harvard Medical School O2 cluster additions
+ifdef SLURM_CONF
+override CFLAGS += -I/n/app/openblas/0.2.19/include -I/n/app/gsl/2.3/include
+override LDFLAGS += -L/n/app/openblas/0.2.19/lib -L/n/app/gsl/2.3/lib/
+endif
+
+ND = nicksrc
+NLIB = $(ND)/libnick.a
+
+#######
+
+brew install argp openblas gsl argp-standalone
+make clobber
+make clean
+cc -c -g compat_strchrnul.c -o compat_strchrnul.o
+make
+```
+
 ### prep input
 
 filter out non "nc_" chromosomes (smaller ones):
@@ -65,5 +120,9 @@ paste -d ' ' \
     > data/admixtools/pclarkii.qc_ac_bial.lowmiss_maf.eigenstrat.ind
 ```
 
-
+for the snp file:
+```
+awk '{sub(/\./,"snp" NR)}1' data/admixtools/pclarkii.qc_ac_bial.lowmiss_maf.eigenstrat.snp \
+    > tmp && mv tmp data/admixtools/pclarkii.qc_ac_bial.lowmiss_maf.eigenstrat.snp
+```
 [admixr](https://cran.r-project.org/web/packages/admixr/vignettes/vignette-01-tutorial.html)

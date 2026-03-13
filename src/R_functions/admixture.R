@@ -29,8 +29,8 @@ plot_admix <- function(qvals, k){
 colpal_f <- function(k){
   
   colpal <- c(
-    "#4E79A7", "#F28E2B", "#E15759", "#76B7B2", "#59A14F",
-    "#EDC948", "#B07AA1", "#FF9DA7", "#9C755F", "#BAB0AC"
+    "#1A9993FF", "#075149FF", "#ED3911", "#71D0F5FF", "#D5E4A2FF",
+    "#FED439FF", "#704590", "#FD8CC1FF", "#91331FFF", "#46732EFF"
   )
   
   if (k == 3){
@@ -126,9 +126,9 @@ plot_base_map <- function(){
   
   # Plot
   p <- ggplot() +
-    geom_sf(data = c, fill = "grey90", color = "grey20",  linewidth = 0.2) +
-    geom_sf(data = g, fill = "#70a4ba", color = "#396ecb", linewidth = 0.32) +
-    geom_sf(data = e, fill = "#70a4ba", color = "#396ecb", linewidth = 0.32) +
+    geom_sf(data = c, fill = "grey95", color = "grey20", alpha = 0.7,  linewidth = 0.2) +
+    geom_sf(data = g, fill = "#70a4ba", color = "#396ecb", alpha = 0.7, linewidth = 0.32) +
+    geom_sf(data = e, fill = "#70a4ba", color = "#396ecb", alpha = 0.7, linewidth = 0.32) +
     geom_point(data = sample_table_NOLA, aes(x=LONG, y=LAT), shape = 1, stroke = 0.4) +
     theme(
       panel.background = element_rect(fill = NA, color = NA),
@@ -140,7 +140,7 @@ plot_base_map <- function(){
   
   return(p)
 }
-# plot_size = 5
+plot_size = 5.5
 ggsave(plot = plot_base_map(), filename = "plots/admixture/basemap.png",
        width = plot_size*2, height = plot_size*1.2)
 
