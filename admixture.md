@@ -26,14 +26,14 @@ plink --make-bed \
 
 run admixture 10 times at different ks:
 ```
-#for i in {1..10}; do
-    for k in {3..8}; do
+for i in {1..9}; do
+    for k in {3..10}; do
         admixture -j10 --cv data/vcfs/${name}.admixture.bed ${k} \
-            > data/admixture/${name}.admixture.log.${k}.out
-        mv ${name}.admixture.${k}.P data/admixture/
-        mv ${name}.admixture.${k}.Q data/admixture/
+            > data/admixture/${name}.admixture.log.${k}.${i}.out
+        mv ${name}.admixture.${k}.P data/admixture/${name}.admixture.${k}.${i}.P
+        mv ${name}.admixture.${k}.Q data/admixture/${name}.admixture.${k}.${i}.Q
     done
-#done
+done
 
 paste <(grep -h CV data/admixture/${name}.admixture.log.*.out | cut -d'=' -f2 | cut -d')' -f1) \
     <(grep -h CV data/admixture/${name}.admixture.log.*.out | cut -d' ' -f4) \

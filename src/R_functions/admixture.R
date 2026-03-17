@@ -55,6 +55,8 @@ famfile <- paste0("data/vcfs/", dataname,".fam")
 samples <- get_samples_from_fam(famfile)
 
 for (k in c(3:8)){
+  
+  ########## full admixture plot:
   print(k)
   meanqfile <- paste0("data/admixture/", dataname,".admixture.", k, ".Q")
   #
@@ -63,12 +65,43 @@ for (k in c(3:8)){
     plot = plot_admix(read_qvals(meanQ_file = meanqfile, samples = samples), k),
     height = 5, width = 15
   )
-  
-  ##########
-  
+
+  ########## prepare data for pie charts:
   admix <- read_qvals(meanQ_file = meanqfile, samples = samples)
   admix$pop <- paste0(sapply(strsplit(admix$IID, ""), `[`, 1),
                       sapply(strsplit(admix$IID, ""), `[`, 2))
+  
+  ########## individual pie charts:
+  for (sample in samples){
+    
+    P <- admix |>
+      filter(IID == sample) |>
+      group_by(Q) |>
+      summarize(Qsum = sum(value)) |>
+      ungroup() |>
+      mutate(Qprop = Qsum/sum(Qsum)) 
+    
+    PP <- data.frame(
+      group = P$Q,
+      value = P$Qprop
+    )
+    
+    PPP <- ggplot(PP, aes(x = 1, y = value, fill = group)) +
+      geom_col(width = 0.1, color = "grey20", linewidth = 2) +
+      coord_polar("y", start=0) +
+      scale_fill_manual(values = colpal_f(k)) +
+      #scale_color_manual(values = "grey20") +
+      theme_void() + theme(legend.position="none")
+
+    ggsave(
+      filename = paste0("plots/admixture/", k, "/", sample, ".png"),
+      plot = PPP,
+      height = 3, width = 3
+    )
+    
+  }
+  
+  ########## population pie charts:
   
   for (population in unique(admix$pop)){
     
